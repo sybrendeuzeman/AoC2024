@@ -13,6 +13,7 @@ df_sorted['sorted_1'] = list(df_input[1].sort_values())
 df_sorted['distance'] = df_sorted['sorted_0'] - df_sorted['sorted_1']
 total_distance = sum(df_sorted['distance'].abs())
 
+print(f'Total distance: {total_distance}')
 
 # Part 2: 
 # Count numnbers in 1
@@ -31,4 +32,7 @@ df_0_counted_1 = df_input.merge(
     how = 'left'
     )
 
+# Calculate total similarity
 total_similarity = sum(df_0_counted_1[0] * df_0_counted_1['count_1'].fillna(0))
+
+print(f'Total similarity: {total_similarity}')
