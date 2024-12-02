@@ -55,17 +55,19 @@ print(f'Number of succeeded checks: {number_succeeded_checks}')
 
 # Wrapper to implement the dampener
 def check_with_dampener(report_numbers):
+    # Check if report is not already valid
     first_check = check_report(report_numbers)
-
     if first_check == True:
         return True
     
+    # Check if deletion of one element makes report valid
     for i_del in range(0,len(report_numbers)):
+        # Remove element from list
         report_temp = report_numbers[:]
         del report_temp[i_del]
-        
-        check_after_delete = check_report(report_temp)
 
+        # Check report after deleting element        
+        check_after_delete = check_report(report_temp)
         if check_after_delete == True:
             return True
         
@@ -78,6 +80,6 @@ list_check_dampened = [
     in list_report_numbers
 ]
 
+# Calculate and print number of succeeded checks
 number_succeeded_checks_dampened = sum(list_check_dampened)
-
 print(f'Number of succeeded checks with dampener: {number_succeeded_checks_dampened}')
