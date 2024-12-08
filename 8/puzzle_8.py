@@ -54,13 +54,10 @@ for character in characters:
 
     # Find position of antinodes originating from site i
     for i in range(0,sites.shape[0]):
-        # Find antenna positions without position i
-        sites_c = sites.copy()
-
         # Loop 1 until max iter to be sure all antinode positions are found
         for mul in range(1, max_iter):
             # Multiply step to find antinode position
-            positions = mul * (sites_c - sites[i]) + sites_c
+            positions = mul * (sites - sites[i]) + sites
             
             # Add to set after checking whether position is within bounds
             set_positions.update(
