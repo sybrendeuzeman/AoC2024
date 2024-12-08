@@ -1,7 +1,5 @@
 
-
 # Part 1:
-
 # Function to find potential solutions and check to the solution to be tested
 def check_potential_solution(list_numbers, solution_test):
     # Initialize list
