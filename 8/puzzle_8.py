@@ -52,19 +52,10 @@ for character in characters:
     # Find the positions on the board with the character
     sites = np.array(np.where(board == character)).transpose()
 
-    # Add sites to set
-    set_positions.update(
-        [
-            f'{position[0]},{position[1]}'
-            for position 
-            in sites
-        ]
-    )
-
     # Find position of antinodes originating from site i
     for i in range(0,sites.shape[0]):
         # Find antenna positions without position i
-        sites_c = np.delete(sites, i, axis=0)
+        sites_c = sites.copy()
 
         # Loop 1 until max iter to be sure all antinode positions are found
         for mul in range(1, max_iter):
