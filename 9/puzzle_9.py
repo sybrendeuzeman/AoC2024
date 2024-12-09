@@ -38,26 +38,22 @@ for i in range(len(input)):
 # Track programs checked
 programs_checked = []
 
-values_program = np.unique(mem[mem >= 0])
+values_program = np.unique(mem[mem >= 0])[::-1]
 
-for i in range(len(values_program)-1, -1, -1):
-    # Find an array with different values in memory
-    value_memoryblocks = mem[
-        np.where(
-        np.diff(mem, prepend=-1)
-        )[0]
-    ]
-
-    # Find an array with different lengths of blocks in memory
-    length_memoryblocks = np.diff(
-        np.where(
+for value_program in values_program:
+    start_memoryblocks = np.where(
             np.diff(mem, prepend=-1)
-        )[0],
+        )[0] # Probably able to use this to clean up code a bit.
+
+    # Find an array with different values in memory
+    value_memoryblocks = mem[start_memoryblocks]
+
+    # Find an array with lengths of blocks in memory
+    length_memoryblocks = np.diff(
+        start_memoryblocks,
         append = len(mem)
     )
-
-    value_program = values_program[i]
-    
+   
     # Find the length and value of the program
     length_program = length_memoryblocks[value_memoryblocks == value_program][-1]
 
