@@ -112,7 +112,7 @@ for drc in sequence:
             # Make char list for check whether to continue
             list_chars = [board[pos[0], pos[1]] for pos in pos_check]
 
-        # Only continue of there was no wall in latest move
+        # Only continue if there was no wall at last check
         if not ('#') in list_chars:
             # Move boxes if there is a box move list
             while len(list_path_blocks) > 0:
