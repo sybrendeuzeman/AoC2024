@@ -1,5 +1,8 @@
 import numpy as np
 from collections import Counter
+import datetime
+
+s = datetime.datetime.now()
 
 # Get input into an array
 with open('input.txt') as file:
@@ -91,18 +94,28 @@ for i in range(0, int(np.max(board_steps)) + 1):
     list_positions.append(np.argwhere(board_steps == float(i))[0])
 
 # Use dict to keep track how many cheats of each length are possible
-counter = {}
+#counter = 0
 
-# Go over list to find the cheats
-for i in range(0,len(list_positions)):
+#Go over list to find the cheats
+#for i in range(0,len(list_positions)):
     # Only positions at least 100 steps away are potentially relevant
-    for j in range(i+100, len(list_positions)):
+#    for j in range(i+100, len(list_positions)):
         # Get distance between two points
-        dist = abs(list_positions[i][0] - list_positions[j][0]) + abs(list_positions[i][1] - list_positions[j][1]) 
+#        dist = abs(list_positions[i][0] - list_positions[j][0]) + abs(list_positions[i][1] - list_positions[j][1]) 
         # Find how much the shortcut would cheat away
-        cheated = j - i - dist
+#        cheated = j - i - dist
         # Only keep the cheat if the distance is lower or equal to 20 en more than 100 picoseconds are cheated.
-        if (dist <= 20) and (cheated >= 100):
-            counter[cheated] = counter.get(cheated, 0) + 1
+#        counter += (dist <= 20) * (cheated >= 100)
 
-print(sum(counter.values()))
+#print(counter)
+
+
+# Much faster runtime with arrays (same principle)
+counter = 0
+array_positions = np.array(list_positions)
+for i in range(100,len(list_positions)):
+    counter += np.sum(np.sum(np.abs(array_positions[i:] - array_positions[:-i]), axis=1) <= min(20, i - 100 ))
+
+print(counter)
+
+print('Time:', datetime.datetime.now() - s)
