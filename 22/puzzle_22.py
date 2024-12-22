@@ -45,33 +45,4 @@ for inp in input:
             print('Last changes not')
 
         old_prize = new_prize
-print('Maximum amount of bananas is:', max(banana_with_changes.values()))
-
-for key in banana_with_changes:
-    if banana_with_changes[key] ==3:
-        print(key)
-
-
-banana_with_changes = {}
-secret = 123
-old_prize = 99
-last_changes = []
-already_bought = set()
-for i in range(9):
-    secret = next_secret(secret)
-    new_prize = secret % 10
-
-    last_changes.append(new_prize - old_prize)
-    
-    key = ','.join([str(i) for i in last_changes])
-
-    if (len(last_changes) == 4):
-        if (key not in already_bought):
-            banana_with_changes[key] = banana_with_changes.get(key, 0) + new_prize
-            already_bought.add(key)
-        last_changes = last_changes[1:]
-    elif len(last_changes) >= 4:
-        print('Last changes did not correct correctly')
-
-    old_prize = new_prize
-print('Maximum amount of bananas is:', max(banana_with_changes.values()))
+print('Maximum amount of bananas is:', max(banana_with_changes.values()))\
