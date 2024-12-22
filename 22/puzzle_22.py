@@ -1,4 +1,4 @@
-with open('input_test2.txt') as file:
+with open('input.txt') as file:
     input = [int(line) for line in file.read().rstrip('\n').split('\n')]
 
 def next_secret(secret):
@@ -45,4 +45,4 @@ for inp in input:
             print('Last changes not')
 
         old_prize = new_prize
-print('Maximum amount of bananas is:', max(banana_with_changes.values()))\
+print('Maximum amount of bananas is:', max(banana_with_changes.values()))
