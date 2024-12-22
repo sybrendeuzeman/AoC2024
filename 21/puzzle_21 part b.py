@@ -3,6 +3,11 @@ import numpy as np
 with open('input.txt') as file:
     input = [line for line in file.read().rstrip('\n').split('\n')]
 
+
+##################
+# Initialization #
+##################
+
 locs_numpad = {
     '0' : np.array([3, 1]),
     '1' : np.array([2, 0]),
@@ -26,7 +31,6 @@ locs_keypad = {
 
 }
 
-
 def path_h(start, end):
     # Find which part must be traveled
     travel = locs_keypad[end] - locs_keypad[start]
@@ -39,118 +43,146 @@ def path_h(start, end):
     h_vert = mov_vert * abs(travel[0]) + mov_hor * abs(travel[1]) + 'A'
     h_hor = mov_hor * abs(travel[1]) + mov_vert * abs(travel[0]) + 'A'
 
-    # Give the best path
+    # Return the possible paths preventing going over the empty space
     if (locs_keypad[end][1] == 0) and (locs_keypad[start][0] == 0):
-        return h_vert
+        return [h_vert]
     elif (locs_keypad[start][1] == 0) and (locs_keypad[end][0] == 0):
-        return h_hor
+        return [h_hor]
+    elif h_vert == h_hor:
+        return [h_vert]
     else:
-        if len(h_hor) <= len(h_vert):
-            return h_hor
-        else:
-            return h_vert
-
-def path_r1(start, end):
-    travel = locs_keypad[end] - locs_keypad[start]
-
-    mov_vert = 'v' if travel[0] > 0 else '^'
-    mov_hor = '>' if travel[1] > 0 else '<'
+        return [h_hor, h_vert]
     
-    r1_vert = mov_vert * abs(travel[0]) + mov_hor * abs(travel[1]) + 'A'
-    r1_hor = mov_hor * abs(travel[1]) + mov_vert * abs(travel[0]) + 'A'
-
-    r1_vert_t = ''
-    start = 'A'
-    for end in r1_vert:
-        r1_vert_t += path_h(start, end)
-        start = end
-
-    r1_hor_t = ''
-    start = 'A'
-    for end in r1_hor:
-        r1_hor_t += path_h(start, end)
-        start = end
-
-    if (locs_keypad[end][1] == 0) and (locs_keypad[start][0] == 0):
-        return r1_vert_t
-    elif (locs_keypad[start][1] == 0) and (locs_keypad[end][0] == 0):
-        return r1_hor_t
-    else:
-        if len(r1_hor_t) < len(r1_vert_t):
-            return r1_hor_t
-        else:
-            return r1_vert_t
-
-def path_r2(start, end):
+def initialization_movements(start, end):
+    # Find distance between the two pads
     travel = locs_numpad[end] - locs_numpad[start]
 
+    # Set the movement in vertical and horizontal direction
     mov_vert = 'v' if travel[0] > 0 else '^'
     mov_hor = '>' if travel[1] > 0 else '<'
     
+    # Make a vertical and horizontal path
     r2_vert = mov_vert * abs(travel[0]) + mov_hor * abs(travel[1]) + 'A'
     r2_hor =  mov_hor * abs(travel[1]) + mov_vert * abs(travel[0]) + 'A'
 
-    dict_moves_hor = {r2_hor : 1}
-    for i in range(25):
-        dict_moves_hor = iter_new_dict(dict_moves_hor.copy())
-    l_hor = 0
-    for key in dict_moves_hor:
-        l_hor += len(key) * dict_moves_hor[key]
+    # Return both the vertical and horizontal paths
+    return r2_vert, r2_hor
 
-    dict_moves_vert = {r2_vert : 1}
-    for i in range(25):
-        dict_moves_vert = iter_new_dict(dict_moves_vert.copy())
-    l_vert = 0
-    for key in dict_moves_vert:
-        l_vert += len(key) * dict_moves_vert[key]
 
-    if (locs_numpad[start][1] == 0) and (locs_numpad[end][0] == 3):
-        return l_hor
-    elif (locs_numpad[start][0] == 3) and (locs_numpad[end][1] == 0):
-        return l_vert
-    else:
-        if l_hor < l_vert:
-            return l_hor
-        else:
-            return l_vert
-        
-def path_N(seq):
-    r1 = 0
+def get_seq_list(seq):
+    # Make a list with lists of paths for a certain sequence
+    list_seq = []
+
+    # Previous sequence ended at 'A' (by design)
     start = 'A'
+
+    # Go over the sequence and find the robot movements to make movement
     for end in seq:
-        r1 += path_r2(start, end)
+        list_seq.append(path_h(start, end))
         start = end
-    return r1
 
+    return list_seq
 
-def get_new_seq(old_seq):
-    start = 'A'
-    new_seq = ''
-    for end in old_seq:
-        new_seq += path_h(start, end)
-        start = end
-    return new_seq
+###########################################################################################
+### Make a dictionary with minimum cost for each movement at different number of robots ###
+###########################################################################################
 
+# Make list of 
+inputs = locs_numpad.keys()
 
-def iter_new_dict(dict_moves):
-    dict_moves_new = {}
-    for key in dict_moves:
-        seq = get_new_seq(key)
+# Go over all combinations of letters and add possible sequences to list
+l_starts = []
+for i in inputs:
+    for j in inputs:
+        l_starts.extend(initialization_movements(i,j))
+starts = set(l_starts)
+
+# Put in list and find the sequence for robot to type the sequence
+dict_translate = {}
+for start in starts:
+    dict_translate[start] = get_seq_list(start)
+# Checked: all movements are already contained in this list;
+# No more movements needed to be added
+
+# Build the 0'th order database as initialization for higher order movements
+dict_0_order = {}
+for move in dict_translate.keys():
+    dict_0_order[move] = len(move)
+l_moves = [dict_0_order]
+
+# Iterate 25 times calculate the minimum number of movements needed at each order from the lower order
+for i in range(25):
+    # Get the last dictionary in the list
+    dict_latest = l_moves[-1]
+    
+    dict_new = {}
+    for key, value in dict_translate.items():
+        min_moves = 0
+        for part in value:
+            # At every choice decide what is the cheapest path
+            min_moves += min([dict_latest[p] for p in part])
+        # Add minimum number of moves to the dictionary for the key
+        dict_new[key] = min_moves
+
+    # Add the key to the list
+    l_moves.append(dict_new)
+
+########################
+## Final Calculations ##
+########################
+
+def moves_between_numbers(start, end, order):
+    # Calculate the cheapest path between two letters
+
+    # Find what needs to be traveled
+    travel = locs_numpad[end] - locs_numpad[start]
+
+    # Find the vertical and horizontal movements
+    mov_vert = 'v' if travel[0] > 0 else '^'
+    mov_hor = '>' if travel[1] > 0 else '<'
+    
+    # Make the vertical and horizontal path
+    r2_vert = mov_vert * abs(travel[0]) + mov_hor * abs(travel[1]) + 'A'
+    r2_hor =  mov_hor * abs(travel[1]) + mov_vert * abs(travel[0]) + 'A'
+
+    # Find the number of moves from the dictionary
+    moves_vert = l_moves[order][r2_vert]
+    moves_hor = l_moves[order][r2_hor]
+
+    # Return the appropiate value, while checking for crossing the empty space
+    if (locs_numpad[start][1] == 0) and (locs_numpad[end][0] == 3):
+        return moves_hor
+    elif (locs_numpad[start][0] == 3) and (locs_numpad[end][1] == 0):
+        return moves_vert
+    else:
+        if moves_hor < moves_vert:
+            return moves_hor
+        else:
+            return moves_vert
         
-        while len(seq) > 0:
-            posA = seq.find('A')
-            seq[:posA+1]
+def moves_sequence(seq, order):
+    moves = 0
+    start = 'A'
+    # Go over the sequence and calculate the minimum number of moves necessary
+    for end in seq:
+        moves += moves_between_numbers(start, end, order)
+        start = end
+    return moves
 
-            dict_moves_new[seq[:posA+1]] = dict_moves_new.get(seq[:posA+1], 0) + dict_moves[key]
+# Calculate the 'complexities'
+sol = 0
+for line in input:
+    r1 = moves_sequence(line, 2)
+    print(line, ':', r1)
+    sol += r1 * int(line[:3])
 
-            seq =  seq[posA+1:]
-    return dict_moves_new
+print('Order 2 (part 1):', sol)
 
 
 sol = 0
 for line in input:
-    r1 = path_N(line)
+    r1 = moves_sequence(line, 25)
     print(line, ':', r1)
     sol += r1 * int(line[:3])
 
-print(sol)
+print('Order 25 (part 2):', sol)
