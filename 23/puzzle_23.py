@@ -74,5 +74,5 @@ for i, comp in enumerate(dict_conn.keys()):
     if len(comp_net) > len(biggest_until):
         biggest_until = comp_net
 
-    
+print(biggest_until)
     
